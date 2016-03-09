@@ -42,6 +42,7 @@ public class Login extends HttpServlet {
         if (status) {
             resp.sendRedirect("success.jsp");
         } else {
+            error="Error in username or password!";
             req.setAttribute("error_msg",error);
             RequestDispatcher rd = getServletContext().getRequestDispatcher("/index.jsp");
             rd.forward(req, resp);
