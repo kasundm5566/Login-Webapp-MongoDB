@@ -6,22 +6,14 @@
   <display-name>Archetype Created Web Application</display-name>
   
   <context-param>
-      <param-name>host</param-name>
-      <param-value>jdbc:mysql://localhost:3306/</param-value>
+      <param-name>mdb_host</param-name>
+      <param-value>localhost</param-value>
   </context-param>
   <context-param>
-      <param-name>database</param-name>
-      <param-value>userdata</param-value>
+      <param-name>port</param-name>
+      <param-value>27017</param-value>
   </context-param>
-  <context-param>
-      <param-name>user</param-name>
-      <param-value>root</param-value>
-  </context-param>
-  <context-param>
-      <param-name>password</param-name>
-      <param-value>test123</param-value>
-  </context-param>
-  
+
   <listener>
       <listener-class>hsenid.webapp.ContextListener</listener-class>
   </listener>

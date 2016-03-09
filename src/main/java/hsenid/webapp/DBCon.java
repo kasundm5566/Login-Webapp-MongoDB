@@ -1,10 +1,16 @@
 package hsenid.webapp;
 
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.DatabaseMetaData;
 
 /**
  * Created by hsenid.
+ *
  * @author hsenid
  */
 public class DBCon {
@@ -12,24 +18,24 @@ public class DBCon {
     private static Connection connection;
 
     /**
-     * @param host URL of the database
-     * @param database Name of the database to use
-     * @param dbuser Database user name
-     * @param dbpass Password of the database
+     * @param host Host of the MongoDB database
+     * @param port MongoDB port
      */
-    public static void CreateConnection(String host, String database, String dbuser, String dbpass) {
+    static DB database;
+    public static DB CreateConnection(String host, String port) {
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            connection = (Connection) DriverManager.getConnection(host + database, dbuser, dbpass);
-
-        } catch (Exception ex) {            
+            MongoClient mongo = new MongoClient(host, Integer.parseInt(port));
+            database = mongo.getDB("userdata");
+        } catch (Exception ex) {
+            Login.error="Something bad happened. Try again later.";
         }
+        return database;
     }
 
     /**
      * @return returns Connection object
      */
-    public static Connection getConnection(){
-        return connection;
+    public static DB getConnection() {
+        return database;
     }
 }

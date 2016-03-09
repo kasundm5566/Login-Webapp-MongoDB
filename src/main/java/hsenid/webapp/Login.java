@@ -5,6 +5,9 @@
  */
 package hsenid.webapp;
 
+import com.mongodb.*;
+import com.mongodb.client.MongoDatabase;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,11 +20,13 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by hsenid.
+ *
  * @author hsenid
  */
-public class Login extends HttpServlet{
+public class Login extends HttpServlet {
 
     User user;
+    static String error="Error in username or password!";
     /*String host = "jdbc:mysql://localhost:3306/";
     String database = "userdata";
     String dbuser = "root";
@@ -33,39 +38,16 @@ public class Login extends HttpServlet{
      */
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         user = new User(req.getParameter("uname"), req.getParameter("pass"));
-        
-        /*boolean status=Validate(user);
-        if(status){
-            resp.sendRedirect("success.jsp");
-        }else{
-            req.setAttribute("error_msg", "User name and password does not match!");
-            RequestDispatcher rd = getServletContext().getRequestDispatcher("/index.jsp");
-            rd.forward(req, resp);
-        }*/
-
         boolean status = ValidateByDB(user);
         if (status) {
             resp.sendRedirect("success.jsp");
         } else {
-            req.setAttribute("error_msg", "User name or password error!");
+            req.setAttribute("error_msg",error);
             RequestDispatcher rd = getServletContext().getRequestDispatcher("/index.jsp");
-            rd.forward(req, resp);  
+            rd.forward(req, resp);
         }
+    }
 
-    }
-    
-    /**
-     * @param user
-     * Passing a user to validate username and password
-     * @return status
-     * Returns whether user passed the validation or not
-     */
-    public boolean Validate(User user) {
-        boolean status = false;
-        status = user.getUsername().equals("test") && user.getPassword().equals("123");
-        return status;
-    }
-    
     /**
      * @param user
      * Passing a user to validate username and password
@@ -73,14 +55,19 @@ public class Login extends HttpServlet{
      * Returns whether user passed the validation or not
      */
     public static boolean ValidateByDB(User user) {
+
         boolean status = false;
         try {
-            Connection connection=DBCon.getConnection();
-            Statement statement = connection.createStatement();
-            String query = "SELECT Name FROM user_cred WHERE Name=\"" + user.getUsername() + "\" && pass=md5(\"" + user.getPassword() + "\");";
-            ResultSet result = statement.executeQuery(query);
-            status = result.first();
+            DB userdata = DBCon.getConnection();
+            DBCollection user_cred = (DBCollection) userdata.getCollection("user_cred");
+            BasicDBObject query = new BasicDBObject();
+            query.put("Name", user.getUsername());
+            query.append("Pass", user.getPassword());
+            BasicDBObject fields = new BasicDBObject("Pass", 0).append("_id", 0);
+            DBCursor cursor = user_cred.find(query, fields);
+            status=cursor.hasNext();
         } catch (Exception e) {
+            error="Something bad happened. Try again later.";
         }
         return status;
     }
