@@ -56,8 +56,8 @@ public class Login extends HttpServlet {
      * Returns whether user passed the validation or not
      */
     public static boolean ValidateByDB(User user) {
-
         boolean status = false;
+        DBCursor cursor=null;
         try {
             DB userdata = DBCon.getConnection();
             DBCollection user_cred = (DBCollection) userdata.getCollection("user_cred");
@@ -65,10 +65,14 @@ public class Login extends HttpServlet {
             query.put("Name", user.getUsername());
             query.append("Pass", user.getPassword());
             BasicDBObject fields = new BasicDBObject("Pass", 0).append("_id", 0);
-            DBCursor cursor = user_cred.find(query, fields);
+            cursor = user_cred.find(query, fields);
             status=cursor.hasNext();
         } catch (Exception e) {
             error="Something bad happened. Try again later.";
+        }finally {
+            if (cursor!=null){
+                cursor.close();
+            }
         }
         return status;
     }
